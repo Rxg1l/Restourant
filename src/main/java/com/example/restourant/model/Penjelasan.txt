@@ -1,0 +1,46 @@
+Lapisan Model (atau Entity) adalah lapisan yang paling dasar dan paling dekat dengan database Anda.
+
+💡 Apa Itu Model (Entity)?
+Dalam konteks Spring Boot dan Java Persistence API (JPA), Model atau Entity adalah kelas Java sederhana yang merepresentasikan struktur data di database Anda.
+
+Setiap kelas Model (misalnya Menu.java, Pelayan.java, Pemesanan.java) biasanya dipetakan langsung ke satu tabel di database relasional Anda.
+
+Anotasi yang Digunakan: @Entity
+
+Peran Kunci Model (Entity)
+1. Representasi Skema Database
+Entity mendefinisikan field atau kolom apa yang ada dalam sebuah tabel. Ia adalah skema data Anda. @Entity: Memberitahu JPA (Hibernate) bahwa kelas ini harus dikelola dan dipetakan ke tabel bernama menu (secara default).
+
+@Id dan @GeneratedValue: Mendefinisikan kolom kunci utama (Primary Key) yang digunakan untuk mengidentifikasi setiap baris data secara unik. 
+
+2. Dasar untuk Relasi (Hubungan Antar Tabel)
+Model adalah tempat Anda mendefinisikan bagaimana satu tabel berhubungan dengan tabel lain (prinsip database relasional).
+
+Contoh: Di Pemesanan.java, Anda mendefinisikan relasi ke Pelayan.java menggunakan:
+
+@ManyToOne: Satu Pemesanan dilayani oleh Banyak Pelayan. (Salah, ini harusnya: Banyak Pemesanan dilayani oleh Satu Pelayan.)
+
+@OneToMany: Satu Pemesanan (header) memiliki Banyak DetailPemesanan (item).
+
+JPA menggunakan anotasi ini untuk menghasilkan skema Foreign Key dan memastikan database Anda terstruktur dengan benar.
+
+3. Wadah Data (Data Container)
+Ketika lapisan Repository mengambil data dari database, data tersebut dikembalikan dalam bentuk objek Entity ini.
+
+Repository mengambil baris data (id=1, nama='Nasi Goreng', harga=25000) dari tabel.
+
+Repository mengemasnya ke dalam objek Java Menu yang siap digunakan oleh lapisan Service.
+
+🏗️ Posisi Model dalam Arsitektur Berlapis
+Model atau Entity adalah lapisan yang paling independen di antara yang lain. Semua lapisan lain bergantung padanya, tetapi Model tidak bergantung pada lapisan lain (kecuali pada library JPA/Jakarta Persistence):
+
+Repository menggunakan Model untuk membaca dan menyimpan data.
+
+Service menggunakan Model untuk melakukan kalkulasi dan menerapkan logika bisnis.
+
+Controller menerima Model (atau DTO yang dipetakan dari Model) untuk mengonversinya menjadi format response.
+
+Aturan Emas untuk Model
+Fokus Data: Model harus hanya berisi field, Getter, Setter, Constructor, dan anotasi JPA/Validasi dasar.
+
+Tanpa Logika Bisnis: Model TIDAK BOLEH memiliki method yang mengandung logika bisnis (misalnya, method hitungPajak()). Logika ini harus selalu berada di lapisan Service.

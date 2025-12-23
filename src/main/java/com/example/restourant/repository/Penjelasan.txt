@@ -1,0 +1,18 @@
+Tentu. Setelah Controller (Resepsionis) dan Service (Chef Kepala), kita masuk ke lapisan ketiga dan terakhir: Repository.
+
+Jika Service adalah Chef Kepala, maka Repository adalah Pelayan Gudang yang tahu persis cara mengambil, menyimpan, dan mengelola semua bahan mentah (data) di gudang (database).
+
+💡 Apa Itu Repository?
+Repository adalah lapisan di aplikasi Spring Boot Anda yang bertanggung jawab penuh atas interaksi langsung dengan database. Ia mengisolasi seluruh aplikasi dari detail teknis tentang bagaimana data disimpan (apakah itu MySQL, PostgreSQL, atau database NoSQL).
+
+Anotasi yang Digunakan: @Repository atau, lebih umum di Spring Data JPA, dengan meng-extend interface khusus.
+
+1. Abstraksi Database (Menggantikan SQL)Fungsi paling penting dari Repository adalah membuat Anda tidak perlu menulis query SQL secara manual untuk operasi dasar.Di Spring Boot, Anda mencapai ini dengan mengimplementasikan interface khusus (seperti JpaRepository atau CrudRepository).Contoh di Project Anda:Java// Contoh: MenuRepository.java
+public interface MenuRepository extends JpaRepository<Menu, Long> {
+    // Anda TIDAK perlu menulis kode di sini
+}
+Cukup dengan mendeklarasikan interface ini, Spring Data JPA secara otomatis memberikan Anda method dasar yang siap digunakan, seperti:findAll(): Setara dengan SELECT * FROM menu;findById(id): Setara dengan SELECT * FROM menu WHERE id = ?;save(menu): Setara dengan INSERT atau UPDATE.deleteById(id): Setara dengan DELETE FROM menu WHERE id = ?;
+2. Definisi Query Kustom (Custom Queries)Jika Anda memerlukan query yang lebih spesifik daripada operasi CRUD dasar, Repository memungkinkan Anda untuk menuliskannya hanya dengan mendefinisikan nama method yang sesuai.Nama Method di RepositoryQuery SQL yang DihasilkanfindByNama(String nama)SELECT * FROM menu WHERE nama = ?@Query("SELECT m FROM Menu m WHERE m.harga > ?1")SELECT * FROM menu WHERE harga > [nilai]Ini sangat kuat karena Anda bisa mendapatkan data yang kompleks tanpa harus kembali ke penulisan SQL secara manual.
+3. Mengelola EntityRepository selalu bekerja dengan Entity (objek yang ditandai dengan @Entity—seperti Menu.java atau Pemesanan.java). Entity adalah representasi Java dari tabel database Anda.Ketika Service memanggil repository.save(entity), repository mengambil data dari objek entity tersebut dan mengubahnya menjadi baris (row) di database.Ketika Service memanggil repository.findById(), repository mengambil baris data dari database dan mengubahnya kembali menjadi objek entity Java.
+
+Posisi Repository dalam ArsitekturRepository adalah lapisan paling bawah (Infrastructure Layer). Ia hanya berinteraksi dengan Service di atasnya dan Database di bawahnya.LapisanInteraksiOutput ke Layer AtasControllerMenerima data dari ClientMemanggil ServiceServiceLogika BisnisMemanggil RepositoryRepositoryInteraksi DB (melalui JPA)Mengembalikan Entity ke Service

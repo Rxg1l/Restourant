@@ -1,0 +1,38 @@
+Controller Bertugas: Menangani permintaan HTTP dan berinteraksi hanya dengan DTO.
+- Menerima Permintaan HTTP (Request Handling)
+Controller mendefinisikan URL (Endpoint) dan metode HTTP (GET, POST, PUT, DELETE) apa yang akan merespons permintaan.
+
+Anotasi yang Digunakan:
+
+@RestController: Menandai kelas sebagai Controller yang akan mengembalikan data langsung (sebagai JSON/XML).
+
+@RequestMapping("/api/pemesanan"): Menentukan URL dasar untuk semua metode di dalam kelas ini.
+
+@PostMapping, @GetMapping, @PutMapping, @DeleteMapping: Menentukan metode HTTP spesifik untuk setiap method.
+
+2. Validasi Data Input
+Controller adalah tempat pertama yang memeriksa apakah data yang dikirim client valid secara sintaksis dan struktural.
+
+Contoh: Anotasi @Valid pada parameter @RequestBody memicu validasi, dan GlobalExceptionHandler akan menangkap kegagalan validasi tersebut.
+
+3. Delegasi Logika Bisnis (The Middleman)
+Controller tidak boleh berisi logika bisnis. Controller hanya bertugas memanggil lapisan Service untuk melakukan pekerjaan yang sebenarnya.
+
+Contoh:
+
+TIDAK TEPAT: Controller menghitung totalHarga.
+
+TEPAT: Controller memanggil pemesananService.buatPemesananBaru(pemesanan);. Semua kalkulasi dan validasi ID Pelayan/Menu terjadi di lapisan Service.
+
+4. Mempersiapkan Respons (Response Formatting)
+Setelah Service menyelesaikan pekerjaan (misalnya, menyimpan data), Controller bertanggung jawab untuk memformat hasilnya dan mengirimkannya kembali ke client.
+
+Entity ke DTO: Controller menggunakan PemesananMapper untuk mengubah objek Entity menjadi Response DTO yang bersih.
+
+Status HTTP: Controller membungkus DTO ke dalam objek ResponseEntity untuk menentukan kode status HTTP yang tepat.
+
+return new ResponseEntity<>(responseDTO, HttpStatus.CREATED); (Status 201)
+
+return new ResponseEntity<>(HttpStatus.NOT_FOUND); (Status 404)
+
+-  Controller dalam Arsitektur BerlapisController adalah lapisan teratas dalam arsitektur berlapis Anda (Controller -> Service -> Repository).LapisanKomponenPeran1. Controller@RestControllerI/O (Input/Output). Menerima request, memvalidasi input, memanggil Service, dan mengembalikan response (DTO).2. Service@ServiceLogika Bisnis. Menghitung harga, memvalidasi aturan bisnis, dan mengatur jalannya transaksi.3. Repository@RepositoryDatabase Access. Berinteraksi langsung dengan database (menjalankan query SQL).

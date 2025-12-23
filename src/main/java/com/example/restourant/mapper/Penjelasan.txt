@@ -1,0 +1,16 @@
+- Tujuan utamanya adalah sebagai penerjemah atau jembatan yang mengubah data dari satu format objek ke format objek lain, khususnya antara Entity (objek yang berinteraksi dengan database) dan DTO (objek yang berinteraksi dengan client).
+- Memutus Siklus Rekursi (@JsonIgnore Alternatif)
+Ini adalah masalah yang Anda alami sebelumnya (respons JSON menjadi sangat panjang).
+
+Entity: Objek Pemesanan terhubung ke DetailPemesanan, dan DetailPemesanan memiliki referensi balik ke Pemesanan (@ManyToOne). Relasi bolak-balik ini menciptakan siklus tak terbatas saat di-serialisasi ke JSON.
+
+Mapper: PemesananMapper memecahkan siklus ini dengan mendefinisikan output yang terputus. Saat mengonversi Pemesanan Entity ke PemesananResponseDTO, ia hanya mengambil field yang diperlukan (misalnya ID dan Harga) dan mengabaikan relasi balik yang menyebabkan loop.
+- Kontrol Struktur Data (Minimalisasi Response)Mapper memungkinkan Anda menentukan persis data apa yang akan dilihat oleh client.Entitas (Database View)DTO (Client View)TujuanPemesanan Entity memiliki objek penuh Pelayan (termasuk Gaji, Tanggal Masuk, Kontak).PemesananResponseDTO hanya memiliki pelayanId dan pelayanNama.Keamanan dan Efisiensi. Client tidak perlu tahu detail sensitif Pelayan.DetailPemesanan Entity memiliki objek penuh Menu (termasuk field internal JPA).DetailPemesananDTO hanya memiliki namaMenu, kuantitas, dan subTotal.Minimalisir. Mengurangi ukuran JSON dan menyembunyikan detail database.
+- Menghilangkan Ketergantungan Antara Lapisan
+PemesananMapper menjaga agar lapisan Service dan Database (Entity) tetap terpisah dari lapisan Controller dan Client (DTO).
+
+Service Bertugas: Mengelola logika bisnis dan berinteraksi hanya dengan Entity.
+
+Controller Bertugas: Menangani permintaan HTTP dan berinteraksi hanya dengan DTO.
+
+Dengan adanya Mapper, Controller hanya menerima Entity dari Service, langsung memetakan (me-mapping) Entity tersebut ke DTO menggunakan PemesananMapper.toDto(), dan mengirimkan DTO. Ini memastikan bahwa perubahan pada database (misalnya, menambahkan field baru di Pemesanan.java) tidak secara otomatis memengaruhi format JSON yang diterima client, kecuali jika Anda mengubah PemesananMapper.
